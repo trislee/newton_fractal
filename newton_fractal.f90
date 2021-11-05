@@ -91,7 +91,7 @@ module newton
 
     real( 4 ) :: convergence_threshold
 
-    real( 4 ), dimension ( : ), allocatable :: params_der
+    real( 4 ), dimension ( : ), allocatable :: params_der, params_reverse
 
     ! variable initializations
     !--------------------------------------------------------------------------!
@@ -101,9 +101,11 @@ module newton
 
     convergence_threshold = 1e-14
 
-    allocate( params_der( m ) )
+    allocate( params_der( m ), params_reverse( m ) )
 
-    call polyder( params, params_der )
+    params_reverse = params( m : 1 : -1 )
+
+    call polyder( params_reverse, params_der )
 
     out = 0.
     convergence = max_iter
@@ -112,7 +114,7 @@ module newton
     !--------------------------------------------------------------------------!
 
     !$omp parallel do default(none) &
-    !$omp& shared(max_iter, N, out, params, params_der, roots, convergence, convergence_threshold) &
+    !$omp& shared(max_iter, N, out, params_reverse, params_der, roots, convergence, convergence_threshold) &
     !$omp& private(s, i, j, z, numerator, denominator)
 
     do i = 1, N
@@ -122,7 +124,7 @@ module newton
 
         do s = 1, max_iter
 
-          call horner( params, z, numerator )
+          call horner( params_reverse, z, numerator )
           call horner( params_der, z, denominator )
 
           z = z - numerator / denominator

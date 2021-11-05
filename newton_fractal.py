@@ -144,7 +144,7 @@ class NewtonFractal:
 
     self._fortran_function( self._poly_params, self._roots, self._N_iter, root_indices, convergence )
 
-    self._root_indices = root_indices.T
+    self._root_indices = root_indices.T - 1
     self._convergence = convergence.T
 
   #---------------------------------------------------------------------------#
